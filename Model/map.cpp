@@ -206,3 +206,18 @@ void Map::drawHighlights(std::vector<std::array<std::array<bool, 4>, 4>> highlig
         }
     }
 }
+
+/**
+ * @brief checks collisions between the mouse and a certain point in the map
+ * @param i position in i dimension
+ * @param j position in j dimension
+ * @param k position in k dimension
+ * @param mouse position of the mouse
+ * @return true if there is collision, false otherwise
+ */
+bool Map::checkMapCollision(int i, int j, int k, Vector2 mouse) {
+    bool collision;
+    collision = CheckCollisionPointTriangle(mouse, edge_positions[i][j][k], edge_positions[i][j][k + 1], edge_positions[i][j + 1][k]);
+    collision += CheckCollisionPointTriangle(mouse, edge_positions[i][j][k + 1], edge_positions[i][j + 1][k], edge_positions[i][j + 1][k + 1]);
+    return collision;
+}

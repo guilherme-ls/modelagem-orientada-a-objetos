@@ -33,6 +33,8 @@ class Map {
 
         void initializeMap(int fractions);
 
+        bool checkMapCollision(int i, int j, int k, Vector2 mouse);
+
         Map(float scale) {
             Map::scale = scale;
         }

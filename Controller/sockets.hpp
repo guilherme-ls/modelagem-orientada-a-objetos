@@ -51,23 +51,10 @@ class Sockets {
 
         std::vector<std::string> *inbound_messages_other;
         std::vector<std::string> *outbound_messages_other;
-        std::vector<std::array<std::array<int, 4>, 4>> *board;
-        int *player_turn;
 
         void receiveMessage(int nsock);
 
         void acceptConnections();
-
-        std::string serialize();
-
-    public:
-        void configureMessaging(std::mutex *mutex_alter_inbound_messages_other, std::mutex *mutex_alter_outbound_messages_other, std::vector<std::string> *inbound_messages_other, std::vector<std::string> *outbound_messages_other, int *player_turn, std::vector<std::array<std::array<int, 4>, 4>>* board);
-
-        void clearSocket();
-
-        int startServer();
-
-        int startClient();
 
         int receiveLoopClient();
 
@@ -76,6 +63,15 @@ class Sockets {
         void sendLoopClient();
         
         void sendLoopServer();
+
+    public:
+        void configureMessaging(std::mutex *mutex_alter_inbound_messages_other, std::mutex *mutex_alter_outbound_messages_other, std::vector<std::string> *inbound_messages_other, std::vector<std::string> *outbound_messages_other);
+
+        void clearSocket();
+
+        int startServer();
+
+        int startClient();
 
         int sendMessage(int fd, std::string msg);
 

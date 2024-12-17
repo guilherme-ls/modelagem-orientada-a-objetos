@@ -7,13 +7,11 @@
  * @param inbound_messages_other inbound message list in the receiver
  * @param outbound_messages_other outbound message list in the receiver
  */
-void Sockets::configureMessaging(std::mutex *mutex_alter_inbound_messages_other, std::mutex *mutex_alter_outbound_messages_other, std::vector<std::string> *inbound_messages_other, std::vector<std::string> *outbound_messages_other, int* player_turn, std::vector<std::array<std::array<int, 4>, 4>>* board) {
+void Sockets::configureMessaging(std::mutex *mutex_alter_inbound_messages_other, std::mutex *mutex_alter_outbound_messages_other, std::vector<std::string> *inbound_messages_other, std::vector<std::string> *outbound_messages_other) {
     this->mutex_alter_inbound_messages_other = mutex_alter_inbound_messages_other;
     this->mutex_alter_outbound_messages_other = mutex_alter_outbound_messages_other;
     this->inbound_messages_other = inbound_messages_other;
     this->outbound_messages_other = outbound_messages_other;
-    this->board = board;
-    this->player_turn = player_turn;
 }
 
 /**
@@ -165,34 +163,13 @@ void Sockets::receiveMessage(int nsock) {
         std::stringstream stream;
         stream << new_string;
 
-        // splits string if multple were received together
+        // splits string if multiple were received together
         while (std::getline(stream, new_string, '\n')) {
             mutex_alter_inbound_messages.lock();
             inbound_messages.emplace_back(make_pair(new_string, nsock));
             mutex_alter_inbound_messages.unlock();
         }
     }
-}
-
-/**
- * @brief Serializes data in a string
- * @param board data to be serialized
- * @return serialized data in a string
- */
-std::string Sockets::serialize() {
-    std::string output = "brd ";
-    int fractions = board->size();
-    output += std::to_string(fractions) + " ";
-    for(int i = 0; i < fractions; i++) {
-        for(int j = 0; j < 4; j++) {
-            for(int k = 0; k < 4; k++) {
-                output += std::to_string((*board)[i][j][k]) + " ";
-            }
-        }
-    }
-    output += "\n";
-
-    return output;
 }
 
 /**
@@ -220,8 +197,10 @@ void Sockets::acceptConnections() {
         mutex_alter_socket_list.unlock();
 
         // send messages to setup the game
-        sendMessage(new_connection, "num " + std::to_string(i + 1) + " " + std::to_string(*player_turn) + "\n");
-        sendMessage(new_connection, serialize());
+        mutex_alter_inbound_messages.lock();
+        inbound_messages.emplace_back(make_pair((std::string)"inf", -1));
+        mutex_alter_inbound_messages.unlock();
+        sendMessage(new_connection, "num " + std::to_string(i + 1) + "\n");
         printf("Stored new connection\n");
     }
 }
@@ -460,9 +439,11 @@ void Sockets::realServerLoop() {
             inbound_messages_other->emplace_back(msg.first);
             mutex_alter_inbound_messages_other->unlock();
 
-            mutex_alter_outbound_messages.lock();
-            outbound_messages.emplace_back(msg);
-            mutex_alter_outbound_messages.unlock();
+            if(msg.second != -1) {
+                mutex_alter_outbound_messages.lock();
+                outbound_messages.emplace_back(msg);
+                mutex_alter_outbound_messages.unlock();
+            }
         }
 
         // gets messages to be sent

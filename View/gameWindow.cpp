@@ -132,3 +132,42 @@ void GameWindow::cameraUpdate() {
     if (GameWindow::camera.zoom > 10.0f) GameWindow::camera.zoom = 10.0f;
     else if (GameWindow::camera.zoom < 0.1f) GameWindow::camera.zoom = 0.1f;
 }
+
+/**
+ * @brief determines if there is a click in a certain region of the map
+ * @param i position in i dimension
+ * @param j position in j dimension
+ * @param k position in k dimension
+ * @param gameMap map to be used
+ * @return true if there is input, false otherwise
+ */
+bool GameWindow::checkMapInput(int i, int j, int k, Map *gameMap) {
+    // checks if mouse button is pressed
+    if(!IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        return false;
+
+    // if it is pressed, check the position
+    return gameMap->checkMapCollision(i, j, k, GetScreenToWorld2D(GetMousePosition(), camera));
+}
+
+/**
+ * @brief checks menu clicks and return interpretation
+ * @param buttons buttons in the menu
+ * @param players number of players selected
+ * @return 
+ */
+int GameWindow::checkMenuClicks(std::vector<Rectangle> buttons, int players) {
+    // checks clicks
+    int event = -1;
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        for(int i = 0; i < buttons.size(); i++) {
+            if(CheckCollisionPointRec(GetMousePosition(), buttons[i])) {
+                if(players < 3 && i == 2)
+                    i = 3;
+                event = i;
+            }
+        }
+    }
+
+    return event;
+}

@@ -10,14 +10,17 @@
 #include "map.hpp"
 
 class GameWindow {
-    public:
+    private:
         unsigned int screenWidth;
         unsigned int midScreenWidth;
         unsigned int screenHeight;
         unsigned int midScreenHeight;
         unsigned int fps_target;
         bool fps_cap;
-
+        
+        Rectangle drawButton(std::string text, Vector2 position, float scale, bool draw_rec);
+        
+    public:
         Font standard_font = LoadFont("resources/fonts/pixantiqua.png");
 
         Camera2D camera;
@@ -42,7 +45,8 @@ class GameWindow {
         void finalize();
 
         void cameraUpdate();
-    
-    private:
-        Rectangle drawButton(std::string text, Vector2 position, float scale, bool draw_rec);
+
+        bool checkMapInput(int i, int j, int k, Map *gameMap);
+
+        int checkMenuClicks(std::vector<Rectangle> buttons, int players);
 };
